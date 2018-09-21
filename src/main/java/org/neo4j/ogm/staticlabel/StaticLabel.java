@@ -41,7 +41,7 @@ import org.neo4j.cypher.internal.v3_4.expressions.NodePattern;
  *
  * @author Gerrit Meier
  */
-public class LabelSupport {
+public class StaticLabel {
 
   private static final String ILLEGAL_LABEL_MESSAGE =
 	  "Only labels with alpha-numeric characters are allowed, starting with an alphabetic character. "
@@ -49,7 +49,7 @@ public class LabelSupport {
 
   private final String label;
 
-  private LabelSupport(String label) {
+  private StaticLabel(String label) {
 	if (label == null) {
 	  throw new IllegalArgumentException("Label must not be null");
 	}
@@ -57,18 +57,18 @@ public class LabelSupport {
   }
 
   /**
-   * Creates a {@link LabelSupport} instance with the given
+   * Creates a {@link StaticLabel} instance with the given
    * static label to use on each query processed with it.
    *
    * @param label Label to add to the queries nodes.
-   * @return {@link LabelSupport} instance
+   * @return {@link StaticLabel} instance
    */
-  public static LabelSupport forLabel(String label) {
+  public static StaticLabel forLabel(String label) {
 	if (hasIllegalForm(label)) {
 	  throw new IllegalArgumentException(ILLEGAL_LABEL_MESSAGE + label);
 	}
 
-	return new LabelSupport(label);
+	return new StaticLabel(label);
   }
 
   private static boolean hasIllegalForm(String label) {
@@ -87,14 +87,14 @@ public class LabelSupport {
    * @param cypher Cypher query to get manipulated.
    * @return Cypher query with static label added.
    */
-  public String withLabel(String cypher) {
+  public String addLabel(String cypher) {
 	CypherParser cypherParser = new CypherParser();
 	Statement statement = cypherParser.parse(cypher, Option.empty());
 
 	Function1<Object, Object> rewriter = bottomUp.apply(new AddLabelRewriter(label), JFunction.func((o) -> false));
 
 	ExpressionStringifier expressionStringifier = new Stringifier();
-	CypherPrettifier prettifier = new CypherPrettifier(expressionStringifier, label);
+	CypherStatementConverter prettifier = new CypherStatementConverter(expressionStringifier, label);
 
 	Statement apply = (Statement) rewriter.apply(statement);
 	return prettifier.asString(apply);
@@ -123,7 +123,7 @@ public class LabelSupport {
 	}
 
 	private Seq<LabelName> addLabel(NodePattern nodePattern) {
-	  Collection<LabelName> existingLabels = new ArrayList<LabelName>(
+	  Collection<LabelName> existingLabels = new ArrayList<>(
 		  asJavaCollectionConverter(nodePattern.labels()).asJavaCollection());
 
 	  existingLabels.add(new LabelName(label, nodePattern.position()));

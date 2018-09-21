@@ -42,7 +42,7 @@ import org.neo4j.cypher.internal.v3_4.expressions.PatternPart;
  *
  * @author Gerrit Meier
  */
-class CypherPrettifier extends Prettifier {
+class CypherStatementConverter extends Prettifier {
 
   private static final String EMPTY_VALUE = "";
   private static final String COMMA_DELIMITER = ", ";
@@ -52,7 +52,7 @@ class CypherPrettifier extends Prettifier {
   private final String additionalLabel;
   private final Function0<String> emptyStringFunc = JFunction.func(() -> EMPTY_VALUE);
 
-  CypherPrettifier(ExpressionStringifier mkStringOf, String additionalLabel) {
+  CypherStatementConverter(ExpressionStringifier mkStringOf, String additionalLabel) {
 	super(mkStringOf);
 	this.mkStringOf = mkStringOf;
 	this.additionalLabel = additionalLabel;
