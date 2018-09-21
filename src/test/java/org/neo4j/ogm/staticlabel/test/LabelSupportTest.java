@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.staticlabel;
+package org.neo4j.ogm.staticlabel.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+import org.neo4j.ogm.staticlabel.LabelSupport;
 
 /**
+ * This test lives in another package to simulate external usage
+ * if the {@link LabelSupport} extension.
+ *
  * @author Gerrit Meier
  */
 class LabelSupportTest {
