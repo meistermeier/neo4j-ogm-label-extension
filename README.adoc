@@ -1,0 +1,36 @@
+image:https://api.travis-ci.org/meistermeier/sdn-spring-boot-compatibility.svg?branch=master[build state]
+
+== Static Label Extension for Neo4j-OGM
+
+This projects provides a limited support for manipulating Cypher statements
+ and add an additional label to all nodes in the statement.
+
+
+=== Limitations
+There are some limitations at the moment.
+
+==== Tested support for 3.4.x only
+This extension is built against Neo4j's `openCypher-frontend` and uses specific _3.4_ packages.
+It may work with any other _3.1+_ version of Neo4j in server mode.
+
+If you are using the extension with Neo4j running embedded, it might end in version conflicts regarding Scala, at least.
+There will be multiple Scala runtimes in your classpath.
+
+
+==== Limited keywords
+The implementation overrides a lot of existing methods to generate the string representation of the manipulated Cypher statement.
+Due to the fact that it is near to impossible to test against every possible statement, the extension only support some constructs right now.
+
+NOTE: Also the conversion for the supported keywords themselves might be incomplete regarding its inner statements.
+
+The keywords supported right now are:
+
+* `Return`
+* `Match`
+* `With`
+* `Create`
+* `Unwind`
+* `Set`
+* `Delete`
+* `Merge`
+* _Custom procedure calls_
