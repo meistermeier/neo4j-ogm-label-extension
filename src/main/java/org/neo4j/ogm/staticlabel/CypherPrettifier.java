@@ -37,6 +37,9 @@ import org.neo4j.cypher.internal.v3_4.expressions.LabelName;
 import org.neo4j.cypher.internal.v3_4.expressions.PatternPart;
 
 /**
+ * Class in charge of handling the conversion
+ * of a Cypher statement to its string representation.
+ *
  * @author Gerrit Meier
  */
 class CypherPrettifier extends Prettifier {
@@ -55,6 +58,12 @@ class CypherPrettifier extends Prettifier {
 	this.additionalLabel = additionalLabel;
   }
 
+  /**
+   * Converts a Cypher statement to its string representation.
+   *
+   * @param statement Statement that gets converted to string.
+   * @return The given statement as string.
+   */
   @Override
   public String asString(Statement statement) {
 	if (statement instanceof Query) {

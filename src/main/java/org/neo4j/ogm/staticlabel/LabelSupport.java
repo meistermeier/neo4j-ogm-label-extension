@@ -36,7 +36,8 @@ import org.neo4j.cypher.internal.v3_4.expressions.LabelName;
 import org.neo4j.cypher.internal.v3_4.expressions.NodePattern;
 
 /**
- *
+ * Support for taking a Cypher query and adding a static label
+ * to every node in the query.
  *
  * @author Gerrit Meier
  */
@@ -55,6 +56,13 @@ public class LabelSupport {
 	this.label = label;
   }
 
+  /**
+   * Creates a {@link LabelSupport} instance with the given
+   * static label to use on each query processed with it.
+   *
+   * @param label Label to add to the queries nodes.
+   * @return {@link LabelSupport} instance
+   */
   public static LabelSupport forLabel(String label) {
 	if (hasIllegalForm(label)) {
 	  throw new IllegalArgumentException(ILLEGAL_LABEL_MESSAGE + label);
@@ -63,6 +71,22 @@ public class LabelSupport {
 	return new LabelSupport(label);
   }
 
+  private static boolean hasIllegalForm(String label) {
+	return !(
+		// check the first character first to be alphabetic
+		StringUtils.isAlphanumeric(label)
+			// finds null, empty, only blanks, blanks within the string and special characters
+			|| StringUtils.isAlpha(label.substring(0, 1))
+	);
+  }
+
+  /**
+   * Parses a given Cypher query, adds the static label
+   * and rewrites it.
+   *
+   * @param cypher Cypher query to get manipulated.
+   * @return Cypher query with static label added.
+   */
   public String withLabel(String cypher) {
 	CypherParser cypherParser = new CypherParser();
 	Statement statement = cypherParser.parse(cypher, Option.empty());
@@ -74,15 +98,6 @@ public class LabelSupport {
 
 	Statement apply = (Statement) rewriter.apply(statement);
 	return prettifier.asString(apply);
-  }
-
-  private static boolean hasIllegalForm(String label) {
-	return !(
-		// check the first character first to be alphabetic
-		StringUtils.isAlphanumeric(label)
-			// finds null, empty, only blanks, blanks within the string and special characters
-			|| StringUtils.isAlpha(label.substring(0, 1))
-	);
   }
 
   private class AddLabelRewriter extends scala.runtime.AbstractFunction1<Object, Object> {
