@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.labeladder;
+package org.neo4j.ogm.staticlabel;
 
 import scala.Function0;
 import scala.Function1;
