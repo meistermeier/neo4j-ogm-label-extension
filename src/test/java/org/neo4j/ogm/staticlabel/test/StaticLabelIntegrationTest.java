@@ -2,7 +2,6 @@ package org.neo4j.ogm.staticlabel.test;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +23,6 @@ import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.types.Node;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.configuration.BoltConnector;
 import org.neo4j.kernel.configuration.Connector;
@@ -37,8 +35,6 @@ import org.neo4j.ogm.staticlabel.test.domain.TestEntity;
 class StaticLabelIntegrationTest {
   private static final String BOLT_URL = "localhost:34567";
   private static SessionFactory sessionFactory;
-  private GraphDatabaseService graphDatabaseService;
-  private File neo4jDb;
   private Driver driver;
 
   @AfterAll
@@ -48,10 +44,10 @@ class StaticLabelIntegrationTest {
 
   @BeforeAll
   void initializeDatabase() throws IOException {
-	this.neo4jDb = Files.createTempDirectory("neo4j.db").toFile();
+	BoltConnector bolt = new BoltConnector();
+	File neo4jDb = Files.createTempDirectory("neo4j.db").toFile();
 
-	final BoltConnector bolt = new BoltConnector();
-	this.graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(neo4jDb)
+	new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(neo4jDb)
 		.setConfig(bolt.type, Connector.ConnectorType.BOLT.name()).setConfig(bolt.enabled, "true")
 		.setConfig(bolt.listen_address, BOLT_URL).newGraphDatabase();
 

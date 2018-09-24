@@ -28,7 +28,7 @@ import org.neo4j.ogm.staticlabel.StaticLabel;
  */
 class StaticLabelTest {
 
-  private StaticLabel support = StaticLabel.forLabel("NewLabel");
+  private final StaticLabel support = StaticLabel.forLabel("NewLabel");
 
   @Test
   void simpleMatchQuery() {
