@@ -1,4 +1,4 @@
-image:https://api.travis-ci.org/meistermeier/sdn-spring-boot-compatibility.svg?branch=master[build state]
+image:https://api.travis-ci.org/meistermeier/neo4j-ogm-label-extension.svg?branch=master[build state]
 
 == Static Label Extension for Neo4j-OGM
 
