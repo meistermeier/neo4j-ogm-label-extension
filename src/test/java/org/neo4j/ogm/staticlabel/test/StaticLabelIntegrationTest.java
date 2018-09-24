@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Date;
+import java.util.function.Supplier;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
@@ -89,6 +90,25 @@ class StaticLabelIntegrationTest {
 
   @Test
   void saveWithLabel() {
+	Session session = sessionFactory.openSession();
+
+	TestEntity entity = new TestEntity();
+	entity.setName("TestName");
+	session.save(entity);
+
+	assertLabels("TestEntity", "StaticLabel");
+  }
+
+  @Test
+  void saveWithLabelSupplier() {
+
+	SessionFactory sessionFactory = new SessionFactory(
+		new Configuration.Builder()
+			.uri("bolt://localhost:34567")
+			//			.credentials("neo4j", "secret")
+			.withConfigProperty("cypher.modification.staticlabel", (Supplier) () -> "StaticLabel")
+			.build(),
+		"org.neo4j.ogm.staticlabel.test.domain");
 
 	Session session = sessionFactory.openSession();
 
@@ -116,15 +136,14 @@ class StaticLabelIntegrationTest {
 
   @Test
   void shouldThrowExceptionIfLabelTypeDoesNotMatch() {
-	Assertions.assertThrows(IllegalArgumentException.class, () -> {
-	  new SessionFactory(
-		  new Configuration.Builder()
-			  .uri("bolt://localhost:34567")
-			  .credentials("neo4j", "secret")
-			  .withConfigProperty("cypher.modification.staticlabel", new Date())
-			  .build(),
-		  "org.neo4j.ogm.staticlabel.test.domain");
-	});
+	Assertions.assertThrows(IllegalArgumentException.class, () ->
+		new SessionFactory(
+			new Configuration.Builder()
+				.uri("bolt://localhost:34567")
+				.credentials("neo4j", "secret")
+				.withConfigProperty("cypher.modification.staticlabel", new Date())
+				.build(),
+			"org.neo4j.ogm.staticlabel.test.domain"));
   }
 
   private void assertLabels(String... expectedLabels) {

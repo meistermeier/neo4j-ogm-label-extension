@@ -24,6 +24,7 @@ import scala.compat.java8.JFunction;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -41,19 +42,16 @@ import org.neo4j.cypher.internal.v3_4.expressions.NodePattern;
  *
  * @author Gerrit Meier
  */
-public class StaticLabel {
+class StaticLabel {
 
   private static final String ILLEGAL_LABEL_MESSAGE =
 	  "Only labels with alpha-numeric characters are allowed, starting with an alphabetic character. "
 		  + "This label does not match the rule: ";
 
-  private final String label;
+  private final Supplier<String> labelSupplier;
 
-  private StaticLabel(String label) {
-	if (label == null) {
-	  throw new IllegalArgumentException("Label must not be null");
-	}
-	this.label = label;
+  private StaticLabel(Supplier<String> labelSupplier) {
+	this.labelSupplier = labelSupplier;
   }
 
   /**
@@ -63,12 +61,19 @@ public class StaticLabel {
    * @param label Label to add to the queries nodes.
    * @return {@link StaticLabel} instance
    */
-  public static StaticLabel forLabel(String label) {
-	if (hasIllegalForm(label)) {
-	  throw new IllegalArgumentException(ILLEGAL_LABEL_MESSAGE + label);
-	}
+   static StaticLabel forLabel(String label) {
+	return new StaticLabel(() -> label);
+  }
 
-	return new StaticLabel(label);
+  /**
+   * Creates a {@link StaticLabel} instance with the given
+   * supplier function to use on each query processed with it.
+   *
+   * @param labelSupplier Supplier function to get called before each cypher modification.
+   * @return {@link StaticLabel} instance
+   */
+  static StaticLabel forLabel(Supplier<String> labelSupplier) {
+	return new StaticLabel(labelSupplier);
   }
 
   static StaticLabel noOp() {
@@ -91,7 +96,12 @@ public class StaticLabel {
    * @param cypher Cypher query to get manipulated.
    * @return Cypher query with static label added.
    */
-  public String addLabel(String cypher) {
+  String addLabel(String cypher) {
+	String label = getLabel();
+	if (hasIllegalForm(label)) {
+	  throw new IllegalArgumentException(ILLEGAL_LABEL_MESSAGE + label);
+	}
+
 	CypherParser cypherParser = new CypherParser();
 	Statement statement = cypherParser.parse(cypher, Option.empty());
 
@@ -102,6 +112,21 @@ public class StaticLabel {
 
 	Statement apply = (Statement) rewriter.apply(statement);
 	return prettifier.asString(apply);
+  }
+
+  private String getLabel() {
+	return labelSupplier.get();
+  }
+
+  private static class StaticLabelNoOp extends StaticLabel {
+	private StaticLabelNoOp() {
+	  super(() -> "");
+	}
+
+	@Override
+	public String addLabel(String cypher) {
+	  return cypher;
+	}
   }
 
   private class AddLabelRewriter extends scala.runtime.AbstractFunction1<Object, Object> {
@@ -136,7 +161,8 @@ public class StaticLabel {
 	}
 
   }
-  class Stringifier extends ExpressionStringifier {
+
+  private class Stringifier extends ExpressionStringifier {
 
 	private static final String EMPTY_VALUE = "";
 
@@ -169,17 +195,6 @@ public class StaticLabel {
 		return "`" + txt + "`";
 	  else
 		return txt;
-	}
-  }
-
-  private static class StaticLabelNoOp extends StaticLabel {
-	private StaticLabelNoOp() {
-	  super("");
-	}
-
-	@Override
-	public String addLabel(String cypher) {
-	  return cypher;
 	}
   }
 
