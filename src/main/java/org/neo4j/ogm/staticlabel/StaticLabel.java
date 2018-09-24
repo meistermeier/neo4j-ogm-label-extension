@@ -24,6 +24,7 @@ import scala.compat.java8.JFunction;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -76,10 +77,6 @@ class StaticLabel {
 	return new StaticLabel(labelSupplier);
   }
 
-  static StaticLabel noOp() {
-	return new StaticLabelNoOp();
-  }
-
   private static boolean hasIllegalForm(String label) {
 	return !(
 		// check the first character first to be alphabetic
@@ -116,17 +113,6 @@ class StaticLabel {
 
   private String getLabel() {
 	return labelSupplier.get();
-  }
-
-  private static class StaticLabelNoOp extends StaticLabel {
-	private StaticLabelNoOp() {
-	  super(() -> "");
-	}
-
-	@Override
-	public String addLabel(String cypher) {
-	  return cypher;
-	}
   }
 
   private class AddLabelRewriter extends scala.runtime.AbstractFunction1<Object, Object> {

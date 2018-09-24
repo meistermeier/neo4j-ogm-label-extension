@@ -14,7 +14,7 @@ public class StaticLabelModificationProvider implements CypherModificationProvid
   public Function<String, String> getCypherModification(Map<String, Object> configProperties) {
 	Object staticLabelValue = configProperties.get(CONFIGURATION_KEY);
 	if (staticLabelValue == null) {
-	  return StaticLabel.noOp()::addLabel;
+	  return Function.identity();
 	}
 	if (staticLabelValue instanceof String) {
 	  return StaticLabel.forLabel((String) staticLabelValue)::addLabel;
