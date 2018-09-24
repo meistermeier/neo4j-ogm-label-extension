@@ -12,12 +12,18 @@
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		<neo4j-ogm.version>3.1.4-SNAPSHOT</neo4j-ogm.version>
 		<open-cypher-frontend.version>3.4.7</open-cypher-frontend.version>
 		<scala-compat.version>0.9.0</scala-compat.version>
 		<junit.version>5.3.1</junit.version>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j-ogm-api</artifactId>
+			<version>${neo4j-ogm.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>openCypher-frontend-1</artifactId>
@@ -38,6 +44,18 @@
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
 			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j-ogm-core</artifactId>
+			<version>${neo4j-ogm.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j-ogm-test</artifactId>
+			<version>${neo4j-ogm.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

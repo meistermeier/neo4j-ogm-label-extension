@@ -71,6 +71,10 @@ public class StaticLabel {
 	return new StaticLabel(label);
   }
 
+  static StaticLabel noOp() {
+	return new StaticLabelNoOp();
+  }
+
   private static boolean hasIllegalForm(String label) {
 	return !(
 		// check the first character first to be alphabetic
@@ -130,8 +134,8 @@ public class StaticLabel {
 
 	  return collectionAsScalaIterableConverter(existingLabels).asScala().toSeq();
 	}
-  }
 
+  }
   class Stringifier extends ExpressionStringifier {
 
 	private static final String EMPTY_VALUE = "";
@@ -166,6 +170,22 @@ public class StaticLabel {
 	  else
 		return txt;
 	}
-
   }
+
+  private static class StaticLabelNoOp extends StaticLabel {
+	private StaticLabelNoOp() {
+	  super("");
+	}
+
+	@Override
+	public String addLabel(String cypher) {
+	  return cypher;
+	}
+  }
+
 }
+
+
+
+
+
