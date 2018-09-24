@@ -8,9 +8,11 @@ import org.neo4j.ogm.spi.CypherModificationProvider;
 
 public class StaticLabelModificationProvider implements CypherModificationProvider {
 
+  public static final String CONFIGURATION_KEY = "cypher.modification.staticlabel";
+
   @Override
   public Function<String, String> getCypherModification(Map<String, Object> configProperties) {
-	Object staticLabelValue = configProperties.get("cypher.modification.staticlabel");
+	Object staticLabelValue = configProperties.get(CONFIGURATION_KEY);
 	if (staticLabelValue == null) {
 	  return StaticLabel.noOp()::addLabel;
 	}
@@ -20,7 +22,7 @@ public class StaticLabelModificationProvider implements CypherModificationProvid
 	if (staticLabelValue instanceof Supplier) {
 	  return StaticLabel.forLabel((Supplier<String>) staticLabelValue)::addLabel;
 	}
-	throw new IllegalArgumentException("cypher.modification.staticlabel value type is not supported."
+	throw new IllegalArgumentException(CONFIGURATION_KEY + " value type is not supported."
 		+ " It should either be a String constant or a Function<String, String>");
   }
 }

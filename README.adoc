@@ -5,6 +5,24 @@ image:https://api.travis-ci.org/meistermeier/sdn-spring-boot-compatibility.svg?b
 This projects provides a limited support for manipulating Cypher statements
  and add an additional label to all nodes in the statement.
 
+=== Usage
+
+Just add this library to your Neoj4-OGM based project and provide your label.
+This can be done by defining it as a static `String` value
+
+[source, java]
+SessionFactory sessionFactory = new SessionFactory(
+		new Configuration.Builder()
+			.withConfigProperty(StaticLabelModificationProvider.CONFIGURATION_KEY, "StaticLabel")
+			.build());
+
+or a `Supplier` function
+
+[source, java]
+SessionFactory sessionFactory = new SessionFactory(
+		new Configuration.Builder()
+			.withConfigProperty(StaticLabelModificationProvider.CONFIGURATION_KEY, (Supplier) () -> "StaticLabel")
+			.build());
 
 === Limitations
 There are some limitations at the moment.
