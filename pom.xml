@@ -15,7 +15,7 @@
 
 		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
 		<maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
-		<neo4j-ogm.version>3.1.4-SNAPSHOT</neo4j-ogm.version>
+		<neo4j-ogm.version>3.1.4-LABEL-ADD-SNAPSHOT</neo4j-ogm.version>
 		<open-cypher-frontend.version>3.4.7</open-cypher-frontend.version>
 		<scala-compat.version>0.9.0</scala-compat.version>
 		<junit-jupiter.version>5.3.1</junit-jupiter.version>
@@ -89,4 +89,13 @@
 			<timezone>+1</timezone>
 		</developer>
 	</developers>
+
+	<repositories>
+		<repository>
+			<id>neo-snapshots</id>
+			<name>neo-snapshots</name>
+			<url>https://neo.jfrog.io/neo/ogm-local</url>
+			<snapshots><enabled>true</enabled></snapshots>
+		</repository>
+	</repositories>
 </project>
