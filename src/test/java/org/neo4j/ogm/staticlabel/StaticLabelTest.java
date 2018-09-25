@@ -17,8 +17,9 @@ package org.neo4j.ogm.staticlabel;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.neo4j.ogm.staticlabel.StaticLabel;
 
 /**
  * This test lives in another package to simulate external usage
@@ -28,91 +29,110 @@ import org.neo4j.ogm.staticlabel.StaticLabel;
  */
 class StaticLabelTest {
 
-  private final StaticLabel support = StaticLabel.forLabel("NewLabel");
+	private final StaticLabel support = StaticLabel.forLabel("NewLabel");
 
-  @Test
-  void simpleMatchQuery() {
-	String withLabel = support.addLabel("MATCH (n) RETURN n");
+	@Nested
+	@DisplayName("Simple queries")
+	class SimpleQueries {
+		@Test
+		@DisplayName("that match all nodes")
+		void queryThatMatchesAllNodes() {
+			String withLabel = support.addLabel("MATCH (n) RETURN n");
 
-	String expected = "MATCH (n:NewLabel) RETURN n";
+			String expected = "MATCH (n:NewLabel) RETURN n";
 
-	assertEquals(expected, withLabel);
-  }
+			assertEquals(expected, withLabel);
+		}
 
-  @Test
-  void simpleMatchQueryWithLabel() {
-	String withLabel = support.addLabel("MATCH (n:Existing) RETURN n");
+		@Test
+		@DisplayName("that match one label")
+		void queryWithLabel() {
+			String withLabel = support.addLabel("MATCH (n:Existing) RETURN n");
 
-	String expected = "MATCH (n:Existing:NewLabel) RETURN n";
+			String expected = "MATCH (n:Existing:NewLabel) RETURN n";
 
-	assertEquals(expected, withLabel);
-  }
+			assertEquals(expected, withLabel);
+		}
 
-  @Test
-  void simpleMatchQueryWithPropertyFilter() {
-	String withLabel = support.addLabel("MATCH (n{name:'Someone'}) RETURN n");
+		@Test
+		@DisplayName("that match nodes based on properties")
+		void queryWithPropertyFilter() {
+			String withLabel = support.addLabel("MATCH (n{name:'Someone'}) RETURN n");
 
-	String expected = "MATCH (n:NewLabel{name: \"Someone\"}) RETURN n";
+			String expected = "MATCH (n:NewLabel{name: \"Someone\"}) RETURN n";
 
-	assertEquals(expected, withLabel);
-  }
+			assertEquals(expected, withLabel);
+		}
+	}
 
-  @Test
-  void matchQueryWithProcedureCallNoArgument() {
-	String withLabel = support.addLabel("MATCH (n{name:'Someone'}) CALL nsp.customProcedure()");
+	@Nested
+	@DisplayName("Queries that call procedures")
+	class QueriesWithProcedureCalls {
 
-	String expected = "MATCH (n:NewLabel{name: \"Someone\"}) CALL nsp.customProcedure()";
+		@Test
+		@DisplayName("without arguments")
+		void queryWithProcedureCallNoArgument() {
+			String withLabel = support.addLabel("MATCH (n{name:'Someone'}) CALL nsp.customProcedure()");
 
-	assertEquals(expected, withLabel);
-  }
+			String expected = "MATCH (n:NewLabel{name: \"Someone\"}) CALL nsp.customProcedure()";
 
-  @Test
-  void matchQueryWithProcedureCallOneArgument() {
-	String withLabel = support.addLabel("MATCH (n{name:'Someone'}) CALL nsp.customProcedure(n)");
+			assertEquals(expected, withLabel);
+		}
 
-	String expected = "MATCH (n:NewLabel{name: \"Someone\"}) CALL nsp.customProcedure(n)";
+		@Test
+		@DisplayName("with one argument")
+		void queryWithProcedureCallOneArgument() {
+			String withLabel = support.addLabel("MATCH (n{name:'Someone'}) CALL nsp.customProcedure(n)");
 
-	assertEquals(expected, withLabel);
-  }
+			String expected = "MATCH (n:NewLabel{name: \"Someone\"}) CALL nsp.customProcedure(n)";
 
-  @Test
-  void matchQueryWithProcedureCallTwoArgumentsAndYield() {
-	String withLabel = support.addLabel(
-		"MATCH (c:IdEntity:ConfigEntity {objectState:'COMMITTED'}) WHERE (c)-[:PREDECESSOR]->({objectState:'DEPLOYING'}) CALL cisco.entity.populate(c, 1) YIELD nodes, rels RETURN c, nodes, rels");
+			assertEquals(expected, withLabel);
+		}
 
-	String expected = "MATCH (c:IdEntity:ConfigEntity:NewLabel{objectState: \"COMMITTED\"}) WHERE (c:NewLabel)-[:PREDECESSOR]->(:NewLabel{objectState: \"DEPLOYING\"}) CALL cisco.entity.populate(c, 1) YIELD nodes, rels RETURN c, nodes, rels";
+		@Test
+		@DisplayName("with multiple arguments")
+		void queryWithProcedureCallTwoArgumentsAndYield() {
+			String withLabel = support.addLabel(
+				"MATCH (c:IdEntity:ConfigEntity {objectState:'COMMITTED'}) WHERE (c)-[:PREDECESSOR]->({objectState:'DEPLOYING'}) CALL cisco.entity.populate(c, 1) YIELD nodes, rels RETURN c, nodes, rels");
 
-	assertEquals(expected, withLabel);
-  }
+			String expected = "MATCH (c:IdEntity:ConfigEntity:NewLabel{objectState: \"COMMITTED\"}) WHERE (c:NewLabel)-[:PREDECESSOR]->(:NewLabel{objectState: \"DEPLOYING\"}) CALL cisco.entity.populate(c, 1) YIELD nodes, rels RETURN c, nodes, rels";
 
-  @Test
-  void matchQueryWithSet() {
-	String withLabel = support.addLabel(
-		"MATCH (n:IdEntity:ConfigEntity {objectState:'DEPLOYING'}) WHERE NOT((n)<-[:PREDECESSOR]-({objectState:'COMMITTED'})) SET n.objectState='COMMITTED' RETURN COUNT(n)");
+			assertEquals(expected, withLabel);
+		}
+	}
 
-	String expected = "MATCH (n:IdEntity:ConfigEntity:NewLabel{objectState: \"DEPLOYING\"}) WHERE not (n:NewLabel)<-[:PREDECESSOR]-(:NewLabel{objectState: \"COMMITTED\"}) SET n.objectState=\"COMMITTED\" RETURN COUNT(n)";
+	@Nested
+	@DisplayName("Write queries")
+	class WriteQueries {
+		@Test
+		void settingProperties() {
+			String withLabel = support.addLabel(
+				"MATCH (n:IdEntity:ConfigEntity {objectState:'DEPLOYING'}) WHERE NOT((n)<-[:PREDECESSOR]-({objectState:'COMMITTED'})) SET n.objectState='COMMITTED' RETURN COUNT(n)");
 
-	assertEquals(expected, withLabel);
-  }
+			String expected = "MATCH (n:IdEntity:ConfigEntity:NewLabel{objectState: \"DEPLOYING\"}) WHERE not (n:NewLabel)<-[:PREDECESSOR]-(:NewLabel{objectState: \"COMMITTED\"}) SET n.objectState=\"COMMITTED\" RETURN COUNT(n)";
 
-  @Test
-  void matchQueryWithLabelSet() {
-	String withLabel = support.addLabel(
-		"UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`DataDNSSettings`:`ConfigEntity`:`IdEntity`:`Entity` SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type");
+			assertEquals(expected, withLabel);
+		}
 
-	String expected = "UNWIND $rows AS row MATCH (n:NewLabel) WHERE ID(n) = row.nodeId SET n:`DataDNSSettings`:`ConfigEntity`:`IdEntity`:`Entity`:`NewLabel` SET n += row.props RETURN row.nodeId AS ref, ID(n) AS id, row.type AS type";
+		@Test
+		void settingLabels() {
+			String withLabel = support.addLabel(
+				"UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`DataDNSSettings`:`ConfigEntity`:`IdEntity`:`Entity` SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type");
 
-	assertEquals(expected, withLabel);
-  }
+			String expected = "UNWIND $rows AS row MATCH (n:NewLabel) WHERE ID(n) = row.nodeId SET n:`DataDNSSettings`:`ConfigEntity`:`IdEntity`:`Entity`:`NewLabel` SET n += row.props RETURN row.nodeId AS ref, ID(n) AS id, row.type AS type";
 
-  @Test
-  void queryWithMerge() {
-	String withLabel = support.addLabel(
-		"UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`UNDECRYPTABLE_ACTIONS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
+			assertEquals(expected, withLabel);
+		}
 
-	String expected = "UNWIND $rows AS row MATCH (startNode:NewLabel) WHERE ID(startNode) = row.startNodeId MATCH (endNode:NewLabel) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:UNDECRYPTABLE_ACTIONS]->(endNode) RETURN row.relRef AS ref, ID(rel) AS id, row.type AS type";
+		@Test
+		void performingMerge() {
+			String withLabel = support.addLabel(
+				"UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`UNDECRYPTABLE_ACTIONS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
 
-	assertEquals(expected, withLabel);
-  }
+			String expected = "UNWIND $rows AS row MATCH (startNode:NewLabel) WHERE ID(startNode) = row.startNodeId MATCH (endNode:NewLabel) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:UNDECRYPTABLE_ACTIONS]->(endNode) RETURN row.relRef AS ref, ID(rel) AS id, row.type AS type";
+
+			assertEquals(expected, withLabel);
+		}
+	}
 
 }

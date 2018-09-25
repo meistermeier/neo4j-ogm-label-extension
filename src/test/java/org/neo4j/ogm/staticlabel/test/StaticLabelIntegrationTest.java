@@ -16,6 +16,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.neo4j.driver.internal.value.NodeValue;
@@ -69,6 +71,7 @@ class StaticLabelIntegrationTest {
   }
 
   @Test
+  @DisplayName("Load only nodes with specified static label")
   void loadWithLabel() {
 	org.neo4j.driver.v1.Session driverSession = driver.session();
 
@@ -89,36 +92,7 @@ class StaticLabelIntegrationTest {
   }
 
   @Test
-  void saveWithLabel() {
-	Session session = sessionFactory.openSession();
-
-	TestEntity entity = new TestEntity();
-	entity.setName("TestName");
-	session.save(entity);
-
-	assertLabels("TestEntity", "StaticLabel");
-  }
-
-  @Test
-  void saveWithLabelSupplier() {
-
-	SessionFactory sessionFactory = new SessionFactory(
-		new Configuration.Builder()
-			.uri("bolt://localhost:34567")
-			.withConfigProperty(CONFIGURATION_KEY, (Supplier) () -> "StaticLabel")
-			.build(),
-		"org.neo4j.ogm.staticlabel.test.domain");
-
-	Session session = sessionFactory.openSession();
-
-	TestEntity entity = new TestEntity();
-	entity.setName("TestName");
-	session.save(entity);
-
-	assertLabels("TestEntity", "StaticLabel");
-  }
-
-  @Test
+  @DisplayName("Should do nothing if not configured")
   void doesNothingIfLabelIsNotSet() {
 	SessionFactory sessionFactory = new SessionFactory(
 		new Configuration.Builder()
@@ -134,7 +108,8 @@ class StaticLabelIntegrationTest {
   }
 
   @Test
-  void shouldThrowExceptionIfLabelTypeDoesNotMatch() {
+  @DisplayName("Should throw an exception if specified label type is not supported")
+  void shouldThrowExceptionIfLabelTypeIsNotSupported() {
 	Assertions.assertThrows(IllegalArgumentException.class, () ->
 		new SessionFactory(
 			new Configuration.Builder()
@@ -143,6 +118,44 @@ class StaticLabelIntegrationTest {
 				.withConfigProperty(CONFIGURATION_KEY, new Date())
 				.build(),
 			"org.neo4j.ogm.staticlabel.test.domain"));
+  }
+
+  @Nested
+  @DisplayName("Save calls")
+  class SaveCalls {
+
+	@Test
+	@DisplayName("using static label")
+	void saveWithLabel() {
+	  Session session = sessionFactory.openSession();
+
+	  TestEntity entity = new TestEntity();
+	  entity.setName("TestName");
+	  session.save(entity);
+
+	  assertLabels("TestEntity", "StaticLabel");
+	}
+
+	@Test
+	@DisplayName("using supplier function")
+	void saveWithLabelSupplier() {
+
+	  SessionFactory sessionFactory = new SessionFactory(
+		  new Configuration.Builder()
+			  .uri("bolt://localhost:34567")
+			  //			.credentials("neo4j", "secret")
+			  .withConfigProperty("cypher.modification.staticlabel", (Supplier) () -> "StaticLabel")
+			  .build(),
+		  "org.neo4j.ogm.staticlabel.test.domain");
+
+	  Session session = sessionFactory.openSession();
+
+	  TestEntity entity = new TestEntity();
+	  entity.setName("TestName");
+	  session.save(entity);
+
+	  assertLabels("TestEntity", "StaticLabel");
+	}
   }
 
   private void assertLabels(String... expectedLabels) {
@@ -157,4 +170,5 @@ class StaticLabelIntegrationTest {
 	  }
 	}
   }
+
 }
