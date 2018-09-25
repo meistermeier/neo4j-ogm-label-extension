@@ -7,22 +7,26 @@ This projects provides a limited support for manipulating Cypher statements
 
 === Usage
 
-Just add this library to your Neoj4-OGM based project and provide your label.
+Just add this library to your Neo4j-OGM based project and provide your label.
 This can be done by defining it as a static `String` value
 
 [source, java]
+----
 SessionFactory sessionFactory = new SessionFactory(
 		new Configuration.Builder()
 			.withConfigProperty(StaticLabelModificationProvider.CONFIGURATION_KEY, "StaticLabel")
 			.build());
+----
 
 or a `Supplier` function
 
 [source, java]
+----
 SessionFactory sessionFactory = new SessionFactory(
 		new Configuration.Builder()
 			.withConfigProperty(StaticLabelModificationProvider.CONFIGURATION_KEY, (Supplier) () -> "StaticLabel")
 			.build());
+----
 
 === Limitations
 There are some limitations at the moment.
@@ -31,13 +35,11 @@ There are some limitations at the moment.
 This extension is built against Neo4j's `openCypher-frontend` and uses specific _3.4_ packages.
 It may work with any other _3.1+_ version of Neo4j in server mode.
 
-If you are using the extension with Neo4j running embedded, it might end in version conflicts regarding Scala, at least.
-There will be multiple Scala runtimes in your classpath.
-
+If you are using this extension with an embedded Neo4j instance, it might end up in version conflicts regarding Scala, as there will be multiple Scala runtimes in your class path.
 
 ==== Limited keywords
-The implementation overrides a lot of existing methods to generate the string representation of the manipulated Cypher statement.
-Due to the fact that it is near to impossible to test against every possible statement, the extension only support some constructs right now.
+The API used doesn't provide means for generating a string representation of all Cypher parts, so we might not support correct rewriting of all valid statements.
+Due to this fact it is near to impossible to test against every possible statement.
 
 NOTE: Also the conversion for the supported keywords themselves might be incomplete regarding its inner statements.
 
