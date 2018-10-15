@@ -29,110 +29,110 @@ import org.junit.jupiter.api.Test;
  */
 class StaticLabelTest {
 
-	private final StaticLabel support = StaticLabel.forLabel("NewLabel");
+  private final StaticLabel support = StaticLabel.forLabel("NewLabel");
 
-	@Nested
-	@DisplayName("Simple queries")
-	class SimpleQueries {
-		@Test
-		@DisplayName("that match all nodes")
-		void queryThatMatchesAllNodes() {
-			String withLabel = support.addLabel("MATCH (n) RETURN n");
+  @Nested
+  @DisplayName("Simple queries")
+  class SimpleQueries {
+	@Test
+	@DisplayName("that match all nodes")
+	void queryThatMatchesAllNodes() {
+	  String withLabel = support.addLabel("MATCH (n) RETURN n");
 
-			String expected = "MATCH (n:NewLabel) RETURN n";
+	  String expected = "MATCH (n:NewLabel) RETURN n";
 
-			assertEquals(expected, withLabel);
-		}
-
-		@Test
-		@DisplayName("that match one label")
-		void queryWithLabel() {
-			String withLabel = support.addLabel("MATCH (n:Existing) RETURN n");
-
-			String expected = "MATCH (n:Existing:NewLabel) RETURN n";
-
-			assertEquals(expected, withLabel);
-		}
-
-		@Test
-		@DisplayName("that match nodes based on properties")
-		void queryWithPropertyFilter() {
-			String withLabel = support.addLabel("MATCH (n{name:'Someone'}) RETURN n");
-
-			String expected = "MATCH (n:NewLabel{name: \"Someone\"}) RETURN n";
-
-			assertEquals(expected, withLabel);
-		}
+	  assertEquals(expected, withLabel);
 	}
 
-	@Nested
-	@DisplayName("Queries that call procedures")
-	class QueriesWithProcedureCalls {
+	@Test
+	@DisplayName("that match one label")
+	void queryWithLabel() {
+	  String withLabel = support.addLabel("MATCH (n:Existing) RETURN n");
 
-		@Test
-		@DisplayName("without arguments")
-		void queryWithProcedureCallNoArgument() {
-			String withLabel = support.addLabel("MATCH (n{name:'Someone'}) CALL nsp.customProcedure()");
+	  String expected = "MATCH (n:Existing:NewLabel) RETURN n";
 
-			String expected = "MATCH (n:NewLabel{name: \"Someone\"}) CALL nsp.customProcedure()";
-
-			assertEquals(expected, withLabel);
-		}
-
-		@Test
-		@DisplayName("with one argument")
-		void queryWithProcedureCallOneArgument() {
-			String withLabel = support.addLabel("MATCH (n{name:'Someone'}) CALL nsp.customProcedure(n)");
-
-			String expected = "MATCH (n:NewLabel{name: \"Someone\"}) CALL nsp.customProcedure(n)";
-
-			assertEquals(expected, withLabel);
-		}
-
-		@Test
-		@DisplayName("with multiple arguments")
-		void queryWithProcedureCallTwoArgumentsAndYield() {
-			String withLabel = support.addLabel(
-				"MATCH (c:IdEntity:ConfigEntity {objectState:'COMMITTED'}) WHERE (c)-[:PREDECESSOR]->({objectState:'DEPLOYING'}) CALL cisco.entity.populate(c, 1) YIELD nodes, rels RETURN c, nodes, rels");
-
-			String expected = "MATCH (c:IdEntity:ConfigEntity:NewLabel{objectState: \"COMMITTED\"}) WHERE (c:NewLabel)-[:PREDECESSOR]->(:NewLabel{objectState: \"DEPLOYING\"}) CALL cisco.entity.populate(c, 1) YIELD nodes, rels RETURN c, nodes, rels";
-
-			assertEquals(expected, withLabel);
-		}
+	  assertEquals(expected, withLabel);
 	}
 
-	@Nested
-	@DisplayName("Write queries")
-	class WriteQueries {
-		@Test
-		void settingProperties() {
-			String withLabel = support.addLabel(
-				"MATCH (n:IdEntity:ConfigEntity {objectState:'DEPLOYING'}) WHERE NOT((n)<-[:PREDECESSOR]-({objectState:'COMMITTED'})) SET n.objectState='COMMITTED' RETURN COUNT(n)");
+	@Test
+	@DisplayName("that match nodes based on properties")
+	void queryWithPropertyFilter() {
+	  String withLabel = support.addLabel("MATCH (n{name:'Someone'}) RETURN n");
 
-			String expected = "MATCH (n:IdEntity:ConfigEntity:NewLabel{objectState: \"DEPLOYING\"}) WHERE not (n:NewLabel)<-[:PREDECESSOR]-(:NewLabel{objectState: \"COMMITTED\"}) SET n.objectState=\"COMMITTED\" RETURN COUNT(n)";
+	  String expected = "MATCH (n:NewLabel{name: \"Someone\"}) RETURN n";
 
-			assertEquals(expected, withLabel);
-		}
-
-		@Test
-		void settingLabels() {
-			String withLabel = support.addLabel(
-				"UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`DataDNSSettings`:`ConfigEntity`:`IdEntity`:`Entity` SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type");
-
-			String expected = "UNWIND $rows AS row MATCH (n:NewLabel) WHERE ID(n) = row.nodeId SET n:`DataDNSSettings`:`ConfigEntity`:`IdEntity`:`Entity`:`NewLabel` SET n += row.props RETURN row.nodeId AS ref, ID(n) AS id, row.type AS type";
-
-			assertEquals(expected, withLabel);
-		}
-
-		@Test
-		void performingMerge() {
-			String withLabel = support.addLabel(
-				"UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`UNDECRYPTABLE_ACTIONS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
-
-			String expected = "UNWIND $rows AS row MATCH (startNode:NewLabel) WHERE ID(startNode) = row.startNodeId MATCH (endNode:NewLabel) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:UNDECRYPTABLE_ACTIONS]->(endNode) RETURN row.relRef AS ref, ID(rel) AS id, row.type AS type";
-
-			assertEquals(expected, withLabel);
-		}
+	  assertEquals(expected, withLabel);
 	}
+  }
+
+  @Nested
+  @DisplayName("Queries that call procedures")
+  class QueriesWithProcedureCalls {
+
+	@Test
+	@DisplayName("without arguments")
+	void queryWithProcedureCallNoArgument() {
+	  String withLabel = support.addLabel("MATCH (n{name:'Someone'}) CALL nsp.customProcedure()");
+
+	  String expected = "MATCH (n:NewLabel{name: \"Someone\"}) CALL nsp.customProcedure()";
+
+	  assertEquals(expected, withLabel);
+	}
+
+	@Test
+	@DisplayName("with one argument")
+	void queryWithProcedureCallOneArgument() {
+	  String withLabel = support.addLabel("MATCH (n{name:'Someone'}) CALL nsp.customProcedure(n)");
+
+	  String expected = "MATCH (n:NewLabel{name: \"Someone\"}) CALL nsp.customProcedure(n)";
+
+	  assertEquals(expected, withLabel);
+	}
+
+	@Test
+	@DisplayName("with multiple arguments")
+	void queryWithProcedureCallTwoArgumentsAndYield() {
+	  String withLabel = support.addLabel(
+		  "MATCH (c:IdEntity:ConfigEntity {objectState:'COMMITTED'}) WHERE (c)-[:PREDECESSOR]->({objectState:'DEPLOYING'}) CALL cisco.entity.populate(c, 1) YIELD nodes, rels RETURN c, nodes, rels");
+
+	  String expected = "MATCH (c:IdEntity:ConfigEntity:NewLabel{objectState: \"COMMITTED\"}) WHERE (c:NewLabel)-[:PREDECESSOR]->(:NewLabel{objectState: \"DEPLOYING\"}) CALL cisco.entity.populate(c, 1) YIELD nodes, rels RETURN c, nodes, rels";
+
+	  assertEquals(expected, withLabel);
+	}
+  }
+
+  @Nested
+  @DisplayName("Write queries")
+  class WriteQueries {
+	@Test
+	void settingProperties() {
+	  String withLabel = support.addLabel(
+		  "MATCH (n:IdEntity:ConfigEntity {objectState:'DEPLOYING'}) WHERE NOT((n)<-[:PREDECESSOR]-({objectState:'COMMITTED'})) SET n.objectState='COMMITTED' RETURN COUNT(n)");
+
+	  String expected = "MATCH (n:IdEntity:ConfigEntity:NewLabel{objectState: \"DEPLOYING\"}) WHERE not (n:NewLabel)<-[:PREDECESSOR]-(:NewLabel{objectState: \"COMMITTED\"}) SET n.objectState=\"COMMITTED\" RETURN COUNT(n)";
+
+	  assertEquals(expected, withLabel);
+	}
+
+	@Test
+	void settingLabels() {
+	  String withLabel = support.addLabel(
+		  "UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`DataDNSSettings`:`ConfigEntity`:`IdEntity`:`Entity` SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type");
+
+	  String expected = "UNWIND $rows AS row MATCH (n:NewLabel) WHERE ID(n) = row.nodeId SET n:`DataDNSSettings`:`ConfigEntity`:`IdEntity`:`Entity`:`NewLabel` SET n += row.props RETURN row.nodeId AS ref, ID(n) AS id, row.type AS type";
+
+	  assertEquals(expected, withLabel);
+	}
+
+	@Test
+	void performingMerge() {
+	  String withLabel = support.addLabel(
+		  "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`UNDECRYPTABLE_ACTIONS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
+
+	  String expected = "UNWIND $rows AS row MATCH (startNode:NewLabel) WHERE ID(startNode) = row.startNodeId MATCH (endNode:NewLabel) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:UNDECRYPTABLE_ACTIONS]->(endNode) RETURN row.relRef AS ref, ID(rel) AS id, row.type AS type";
+
+	  assertEquals(expected, withLabel);
+	}
+  }
 
 }
