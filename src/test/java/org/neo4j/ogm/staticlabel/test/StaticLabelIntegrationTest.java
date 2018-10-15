@@ -1,5 +1,6 @@
 package org.neo4j.ogm.staticlabel.test;
 
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.neo4j.ogm.staticlabel.StaticLabelModificationProvider.*;
@@ -58,7 +59,7 @@ class StaticLabelIntegrationTest {
 	sessionFactory = new SessionFactory(
 		new Configuration.Builder()
 			.uri("bolt://localhost:34567")
-			.withConfigProperty(CONFIGURATION_KEY, "StaticLabel")
+			.withCustomProperty(CONFIGURATION_KEY, "StaticLabel")
 			.build(),
 		"org.neo4j.ogm.staticlabel.test.domain");
 
@@ -115,9 +116,13 @@ class StaticLabelIntegrationTest {
 			new Configuration.Builder()
 				.uri("bolt://localhost:34567")
 				.credentials("neo4j", "secret")
-				.withConfigProperty(CONFIGURATION_KEY, new Date())
+				.withCustomProperty(CONFIGURATION_KEY, new Date())
 				.build(),
-			"org.neo4j.ogm.staticlabel.test.domain"));
+			"org.neo4j.ogm.staticlabel.test.domain")
+			.openSession()
+			.query("match (n) return n", emptyMap()
+			)
+	);
   }
 
   @Nested
@@ -143,8 +148,7 @@ class StaticLabelIntegrationTest {
 	  SessionFactory sessionFactory = new SessionFactory(
 		  new Configuration.Builder()
 			  .uri("bolt://localhost:34567")
-			  //			.credentials("neo4j", "secret")
-			  .withConfigProperty("cypher.modification.staticlabel", (Supplier) () -> "StaticLabel")
+			  .withCustomProperty("cypher.modification.staticlabel", (Supplier) () -> "StaticLabel")
 			  .build(),
 		  "org.neo4j.ogm.staticlabel.test.domain");
 
@@ -156,6 +160,7 @@ class StaticLabelIntegrationTest {
 
 	  assertLabels("TestEntity", "StaticLabel");
 	}
+
   }
 
   private void assertLabels(String... expectedLabels) {
