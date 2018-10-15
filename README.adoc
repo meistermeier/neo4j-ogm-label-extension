@@ -14,7 +14,7 @@ This can be done by defining it as a static `String` value:
 ----
 SessionFactory sessionFactory = new SessionFactory(
 		new Configuration.Builder()
-			.withConfigProperty(StaticLabelModificationProvider.CONFIGURATION_KEY, "StaticLabel")
+			.withCustomProperty(StaticLabelModificationProvider.CONFIGURATION_KEY, "StaticLabel")
 			.build());
 ----
 
@@ -24,7 +24,7 @@ or a `Supplier` function:
 ----
 SessionFactory sessionFactory = new SessionFactory(
 		new Configuration.Builder()
-			.withConfigProperty(StaticLabelModificationProvider.CONFIGURATION_KEY, (Supplier) () -> "StaticLabel")
+			.withCustomProperty(StaticLabelModificationProvider.CONFIGURATION_KEY, (Supplier) () -> "StaticLabel")
 			.build());
 ----
 
