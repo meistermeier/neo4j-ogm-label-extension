@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.staticlabel;
+package org.neo4j.ogm.label;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -26,21 +26,21 @@ import org.neo4j.ogm.spi.CypherModificationProvider;
  *
  * @author Gerrit Meier
  */
-public class StaticLabelModificationProvider implements CypherModificationProvider {
+public class LabelModificationProvider implements CypherModificationProvider {
 
-  public static final String CONFIGURATION_KEY = "cypher.modification.staticlabel";
+  public static final String CONFIGURATION_KEY = "cypher.modification.label";
 
   @Override
   public Function<String, String> getCypherModification(Map<String, Object> configProperties) {
-	Object staticLabelValue = configProperties.get(CONFIGURATION_KEY);
-	if (staticLabelValue == null) {
+	Object labelValue = configProperties.get(CONFIGURATION_KEY);
+	if (labelValue == null) {
 	  return Function.identity();
 	}
-	if (staticLabelValue instanceof String) {
-	  return StaticLabel.forLabel((String) staticLabelValue)::addLabel;
+	if (labelValue instanceof String) {
+	  return LabelProvider.forLabel((String) labelValue)::addLabel;
 	}
-	if (staticLabelValue instanceof Supplier) {
-	  return StaticLabel.forLabel((Supplier<String>) staticLabelValue)::addLabel;
+	if (labelValue instanceof Supplier) {
+	  return LabelProvider.forLabel((Supplier<String>) labelValue)::addLabel;
 	}
 	throw new IllegalArgumentException(CONFIGURATION_KEY + " value type is not supported."
 		+ " It should either be a String constant or a Function<String, String>");

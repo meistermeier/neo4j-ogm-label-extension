@@ -5,9 +5,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.neo4j</groupId>
-	<artifactId>neo4j-ogm-static-label-cypher-extension</artifactId>
+	<artifactId>neo4j-ogm-label-cypher-extension</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
-	<description>Static label extension for Neo4j-OGM</description>
+	<description>Label extension for Neo4j-OGM</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

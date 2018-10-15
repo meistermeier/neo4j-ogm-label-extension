@@ -1,4 +1,4 @@
-package org.neo4j.ogm.staticlabel.test.domain;
+package org.neo4j.ogm.label.test.domain;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.staticlabel;
+package org.neo4j.ogm.label;
 
 import static scala.collection.JavaConverters.*;
 
@@ -37,12 +37,12 @@ import org.neo4j.cypher.internal.v3_4.expressions.LabelName;
 import org.neo4j.cypher.internal.v3_4.expressions.NodePattern;
 
 /**
- * Support for taking a Cypher query and adding a static label
+ * Support for taking a Cypher query and adding a label
  * to every node in the query.
  *
  * @author Gerrit Meier
  */
-class StaticLabel {
+class LabelProvider {
 
   private static final String ILLEGAL_LABEL_MESSAGE =
 	  "Only labels with alpha-numeric characters are allowed, starting with an alphabetic character. "
@@ -50,30 +50,30 @@ class StaticLabel {
 
   private final Supplier<String> labelSupplier;
 
-  private StaticLabel(Supplier<String> labelSupplier) {
+  private LabelProvider(Supplier<String> labelSupplier) {
 	this.labelSupplier = labelSupplier;
   }
 
   /**
-   * Creates a {@link StaticLabel} instance with the given
+   * Creates a {@link LabelProvider} instance with the given
    * static label to use on each query processed with it.
    *
    * @param label Label to add to the queries nodes.
-   * @return {@link StaticLabel} instance
+   * @return {@link LabelProvider} instance
    */
-   static StaticLabel forLabel(String label) {
-	return new StaticLabel(() -> label);
+   static LabelProvider forLabel(String label) {
+	return new LabelProvider(() -> label);
   }
 
   /**
-   * Creates a {@link StaticLabel} instance with the given
+   * Creates a {@link LabelProvider} instance with the given
    * supplier function to use on each query processed with it.
    *
    * @param labelSupplier Supplier function to get called before each cypher modification.
-   * @return {@link StaticLabel} instance
+   * @return {@link LabelProvider} instance
    */
-  static StaticLabel forLabel(Supplier<String> labelSupplier) {
-	return new StaticLabel(labelSupplier);
+  static LabelProvider forLabel(Supplier<String> labelSupplier) {
+	return new LabelProvider(labelSupplier);
   }
 
   private static boolean hasIllegalForm(String label) {
@@ -86,11 +86,10 @@ class StaticLabel {
   }
 
   /**
-   * Parses a given Cypher query, adds the static label
-   * and rewrites it.
+   * Parses a given Cypher query, adds the label and rewrites it.
    *
    * @param cypher Cypher query to get manipulated.
-   * @return Cypher query with static label added.
+   * @return Cypher query with label added.
    */
   String addLabel(String cypher) {
 	String label = getLabel();

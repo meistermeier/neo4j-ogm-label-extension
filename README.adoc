@@ -1,6 +1,6 @@
 image:https://api.travis-ci.org/meistermeier/neo4j-ogm-label-extension.svg?branch=master[build state]
 
-== Static Label Extension for Neo4j-OGM
+== Label Extension for Neo4j-OGM
 
 This projects provides a limited support for manipulating Cypher statements
  and adding an additional label to all nodes in the statement.
@@ -14,7 +14,7 @@ This can be done by defining it as a static `String` value:
 ----
 SessionFactory sessionFactory = new SessionFactory(
 		new Configuration.Builder()
-			.withCustomProperty(StaticLabelModificationProvider.CONFIGURATION_KEY, "StaticLabel")
+			.withCustomProperty(LabelModificationProvider.CONFIGURATION_KEY, "StaticLabel")
 			.build());
 ----
 
@@ -24,7 +24,7 @@ or a `Supplier` function:
 ----
 SessionFactory sessionFactory = new SessionFactory(
 		new Configuration.Builder()
-			.withCustomProperty(StaticLabelModificationProvider.CONFIGURATION_KEY, (Supplier) () -> "StaticLabel")
+			.withCustomProperty(LabelModificationProvider.CONFIGURATION_KEY, (Supplier) () -> "DynamicLabel")
 			.build());
 ----
 

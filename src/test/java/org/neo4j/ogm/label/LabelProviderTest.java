@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.ogm.staticlabel;
+package org.neo4j.ogm.label;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,13 +23,13 @@ import org.junit.jupiter.api.Test;
 
 /**
  * This test lives in another package to simulate external usage
- * if the {@link StaticLabel} extension.
+ * if the {@link LabelProvider} extension.
  *
  * @author Gerrit Meier
  */
-class StaticLabelTest {
+class LabelProviderTest {
 
-  private final StaticLabel support = StaticLabel.forLabel("NewLabel");
+  private final LabelProvider support = LabelProvider.forLabel("NewLabel");
 
   @Nested
   @DisplayName("Simple queries")
