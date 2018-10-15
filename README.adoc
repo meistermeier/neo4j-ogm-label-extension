@@ -3,12 +3,12 @@ image:https://api.travis-ci.org/meistermeier/neo4j-ogm-label-extension.svg?branc
 == Static Label Extension for Neo4j-OGM
 
 This projects provides a limited support for manipulating Cypher statements
- and add an additional label to all nodes in the statement.
+ and adding an additional label to all nodes in the statement.
 
 === Usage
 
-Just add this library to your Neo4j-OGM based project and provide your label.
-This can be done by defining it as a static `String` value
+Just add this library to your Neo4j-OGM based project and provide your label via the configuration.
+This can be done by defining it as a static `String` value:
 
 [source, java]
 ----
@@ -18,7 +18,7 @@ SessionFactory sessionFactory = new SessionFactory(
 			.build());
 ----
 
-or a `Supplier` function
+or a `Supplier` function:
 
 [source, java]
 ----
