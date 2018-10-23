@@ -230,7 +230,7 @@ class CypherStatementConverter extends Prettifier {
 	};
 
 	String items = asJava(setClause.items()).stream().map(propertyToStringFunc).collect(
-		Collectors.joining(DOT_DELIMITER));
+		Collectors.joining(COMMA_DELIMITER));
 
 	return "SET " + items;
   }
