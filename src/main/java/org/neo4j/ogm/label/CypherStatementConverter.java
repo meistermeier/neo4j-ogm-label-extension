@@ -29,12 +29,12 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.neo4j.cypher.internal.frontend.v3_4.ast.*;
-import org.neo4j.cypher.internal.frontend.v3_4.prettifier.ExpressionStringifier;
-import org.neo4j.cypher.internal.frontend.v3_4.prettifier.Prettifier;
-import org.neo4j.cypher.internal.util.v3_4.InputPosition;
-import org.neo4j.cypher.internal.v3_4.expressions.LabelName;
-import org.neo4j.cypher.internal.v3_4.expressions.PatternPart;
+import org.opencypher.v9_0.ast.*;
+import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier;
+import org.opencypher.v9_0.ast.prettifier.Prettifier;
+import org.opencypher.v9_0.expressions.LabelName;
+import org.opencypher.v9_0.expressions.PatternPart;
+import org.opencypher.v9_0.util.InputPosition;
 
 /**
  * Class in charge of handling the conversion

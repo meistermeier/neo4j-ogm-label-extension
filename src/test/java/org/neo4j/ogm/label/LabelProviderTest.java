@@ -115,6 +115,16 @@ class LabelProviderTest {
 	}
 
 	@Test
+	void settingMultipleProperties() {
+	  String withLabel = support.addLabel(
+		  "MATCH (n:IdEntity:ConfigEntity {objectState:'DEPLOYING'}) WHERE NOT((n)<-[:PREDECESSOR]-({objectState:'COMMITTED'})) SET n.objectState='COMMITTED', n.objectState2='COMMITTED' RETURN COUNT(n)");
+
+	  String expected = "MATCH (n:IdEntity:ConfigEntity:NewLabel{objectState: \"DEPLOYING\"}) WHERE not (n:NewLabel)<-[:PREDECESSOR]-(:NewLabel{objectState: \"COMMITTED\"}) SET n.objectState=\"COMMITTED\", n.objectState2=\"COMMITTED\" RETURN COUNT(n)";
+
+	  assertEquals(expected, withLabel);
+	}
+
+	@Test
 	void settingLabels() {
 	  String withLabel = support.addLabel(
 		  "UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`DataDNSSettings`:`ConfigEntity`:`IdEntity`:`Entity` SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type");

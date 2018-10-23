@@ -28,13 +28,13 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.neo4j.cypher.internal.frontend.v3_4.ast.Statement;
-import org.neo4j.cypher.internal.frontend.v3_4.parser.CypherParser;
-import org.neo4j.cypher.internal.frontend.v3_4.prettifier.ExpressionStringifier;
-import org.neo4j.cypher.internal.util.v3_4.bottomUp;
-import org.neo4j.cypher.internal.v3_4.expressions.Expression;
-import org.neo4j.cypher.internal.v3_4.expressions.LabelName;
-import org.neo4j.cypher.internal.v3_4.expressions.NodePattern;
+import org.opencypher.v9_0.ast.Statement;
+import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier;
+import org.opencypher.v9_0.expressions.Expression;
+import org.opencypher.v9_0.expressions.LabelName;
+import org.opencypher.v9_0.expressions.NodePattern;
+import org.opencypher.v9_0.parser.CypherParser;
+import org.opencypher.v9_0.util.bottomUp;
 
 /**
  * Support for taking a Cypher query and adding a label
@@ -61,7 +61,7 @@ class LabelProvider {
    * @param label Label to add to the queries nodes.
    * @return {@link LabelProvider} instance
    */
-   static LabelProvider forLabel(String label) {
+  static LabelProvider forLabel(String label) {
 	return new LabelProvider(() -> label);
   }
 
@@ -129,7 +129,8 @@ class LabelProvider {
 		Seq<LabelName> newLabels = addLabel(nodePattern);
 
 		return nodePattern
-			.copy(nodePattern.variable(), newLabels, nodePattern.properties(), nodePattern.position());
+			.copy(nodePattern.variable(), newLabels, nodePattern.properties(), nodePattern.baseNode(),
+				nodePattern.position());
 	  } else {
 		return patternElement;
 	  }
