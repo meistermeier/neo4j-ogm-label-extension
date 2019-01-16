@@ -18,13 +18,17 @@ package org.neo4j.ogm.label;
 import static scala.collection.JavaConverters.*;
 
 import scala.Function1;
+import scala.Function2;
 import scala.Option;
+import scala.collection.JavaConverters;
 import scala.collection.Seq;
 import scala.compat.java8.JFunction;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -33,6 +37,9 @@ import java.util.function.Supplier;
 import javax.xml.soap.Node;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opencypher.v9_0.ast.SetClause;
+import org.opencypher.v9_0.ast.SetItem;
+import org.opencypher.v9_0.ast.SetLabelItem;
 import org.opencypher.v9_0.ast.Statement;
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier;
 import org.opencypher.v9_0.ast.prettifier.Prettifier;
@@ -41,6 +48,7 @@ import org.opencypher.v9_0.expressions.LabelName;
 import org.opencypher.v9_0.expressions.LogicalVariable;
 import org.opencypher.v9_0.expressions.NodePattern;
 import org.opencypher.v9_0.parser.CypherParser;
+import org.opencypher.v9_0.util.InputPosition;
 import org.opencypher.v9_0.util.bottomUp;
 
 /**
@@ -119,7 +127,7 @@ class LabelProvider {
 	return labelSupplier.get();
   }
 
-  private class AddLabelRewriter extends scala.runtime.AbstractFunction1<Object, Object> {
+  private static class AddLabelRewriter extends scala.runtime.AbstractFunction1<Object, Object> {
 
 	private final String label;
 
@@ -132,32 +140,54 @@ class LabelProvider {
 	@Override
 	public Object apply(Object patternElement) {
 
-	  if (!NodePattern.class.isInstance(patternElement)) {
-		  return patternElement;
+	  if(patternElement instanceof SetClause) {
+	  	return handle((SetClause) patternElement);
 	  }
 
-	  NodePattern nodePattern = (NodePattern) patternElement;
-	  Option<LogicalVariable> variable = nodePattern.variable();
-
-	  if(!variable.isEmpty() && seenNodes.contains(variable.get().name())) {
-		  return nodePattern;
+	  if (NodePattern.class.isInstance(patternElement)) {
+	  	return handle((NodePattern) patternElement);
 	  }
 
-	  variable.foreach(JFunction.func(v -> seenNodes.add(v.name())));
-	  Seq<LabelName> newLabels = addLabel(nodePattern);
-
-	  return nodePattern
-		  .copy(nodePattern.variable(), newLabels, nodePattern.properties(), nodePattern.baseNode(), nodePattern.position());
+	  return patternElement;
 	}
 
-	private Seq<LabelName> addLabel(NodePattern nodePattern) {
-	  Collection<LabelName> existingLabels = new ArrayList<>(
-		  asJavaCollectionConverter(nodePattern.labels()).asJavaCollection());
+	NodePattern handle(NodePattern nodePattern) {
+		Option<LogicalVariable> variable = nodePattern.variable();
 
-	  existingLabels.add(new LabelName(label, nodePattern.position()));
+		if(!variable.isEmpty() && seenNodes.contains(variable.get().name())) {
+			return nodePattern;
+		}
 
-	  return collectionAsScalaIterableConverter(existingLabels).asScala().toSeq();
+		variable.foreach(JFunction.func(v -> seenNodes.add(v.name())));
+		Seq<LabelName> newLabels = add(new LabelName(label, nodePattern.position()), nodePattern.labels());
+		return nodePattern
+			.copy(nodePattern.variable(), newLabels, nodePattern.properties(), nodePattern.baseNode(), nodePattern.position());
 	}
+
+	SetClause handle(SetClause setClause) {
+		Function2<List<SetItem>, SetItem, List<SetItem>> transformSetItems = JFunction.func((setItems, setItem) -> {
+			SetItem newSetItem = setItem;
+			if(SetLabelItem.class.isInstance(setItem)) {
+				SetLabelItem setLabelItem = (SetLabelItem) setItem;
+				Seq<LabelName> newLabels = add(new LabelName(label, setLabelItem.position()), setLabelItem.labels());
+				newSetItem = setLabelItem.copy(setLabelItem.variable(), newLabels, setLabelItem.position());
+			}
+
+			setItems.add(newSetItem);
+			return setItems;
+		});
+
+		List<SetItem> setItems = setClause.items().foldLeft(new ArrayList<>(), transformSetItems);
+		return setClause.copy(collectionAsScalaIterableConverter(setItems).asScala().toSeq(), setClause.position());
+	}
+
+	  private static <T> Seq<T> add(T item, Seq<T> target) {
+		  Collection<T> existingLabels = new ArrayList<>(
+			  asJavaCollectionConverter(target).asJavaCollection());
+
+		  existingLabels.add(item);
+		  return collectionAsScalaIterableConverter(existingLabels).asScala().toSeq();
+	  }
 
   }
 

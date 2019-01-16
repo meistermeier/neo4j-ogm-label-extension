@@ -129,7 +129,7 @@ class LabelProviderTest {
 	  String withLabel = support.addLabel(
 		  "UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`DataDNSSettings`:`ConfigEntity`:`IdEntity`:`Entity` SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type");
 
-	  String expected = "UNWIND $rows AS row MATCH (n:NewLabel) WHERE ID(n) = row.nodeId SET n:`DataDNSSettings`:`ConfigEntity`:`IdEntity`:`Entity`:`NewLabel` SET n += row.props RETURN row.nodeId AS ref, ID(n) AS id, row.type AS type";
+	  String expected = "UNWIND $rows AS row MATCH (n:NewLabel) WHERE ID(n) = row.nodeId SET n:DataDNSSettings:ConfigEntity:IdEntity:Entity:NewLabel SET n += row.props RETURN row.nodeId AS ref, ID(n) AS id, row.type AS type";
 
 	  assertEquals(expected, withLabel);
 	}
