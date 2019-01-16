@@ -25,12 +25,11 @@ import scala.compat.java8.JFunction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opencypher.v9_0.ast.Statement;
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier;
-import org.opencypher.v9_0.expressions.Expression;
+import org.opencypher.v9_0.ast.prettifier.Prettifier;
 import org.opencypher.v9_0.expressions.LabelName;
 import org.opencypher.v9_0.expressions.NodePattern;
 import org.opencypher.v9_0.parser.CypherParser;
@@ -102,11 +101,10 @@ class LabelProvider {
 
 	Function1<Object, Object> rewriter = bottomUp.apply(new AddLabelRewriter(label), JFunction.func((o) -> false));
 
-	ExpressionStringifier expressionStringifier = new Stringifier();
-	CypherStatementConverter prettifier = new CypherStatementConverter(expressionStringifier, label);
-
 	Statement apply = (Statement) rewriter.apply(statement);
-	return prettifier.asString(apply);
+
+	Prettifier prettifier = new Prettifier(new ExpressionStringifier(null));
+	return prettifier.asString(apply).replaceAll("\n"," ").replaceAll(" {2}", "");
   }
 
   private String getLabel() {
@@ -145,42 +143,6 @@ class LabelProvider {
 	  return collectionAsScalaIterableConverter(existingLabels).asScala().toSeq();
 	}
 
-  }
-
-  private class Stringifier extends ExpressionStringifier {
-
-	private static final String EMPTY_VALUE = "";
-
-	Stringifier() {
-	  super(null);
-	}
-
-	public String node(NodePattern nodePattern) {
-
-	  String name = nodePattern.variable().map(JFunction.func(this::apply))
-		  .getOrElse(JFunction.func(() -> EMPTY_VALUE));
-
-	  Collection<LabelName> labelNames = asJavaCollectionConverter(nodePattern.labels()).asJavaCollection();
-
-	  String labels = (labelNames.isEmpty()) ? EMPTY_VALUE :
-		  ":" + labelNames.stream().map((l) -> backtick(l.name())).collect(Collectors.joining(":"));
-
-	  String expression = props(name + labels, nodePattern.properties());
-
-	  return "(" + expression + ")";
-	}
-
-	private String props(String prepend, Option<Expression> e) {
-	  return prepend + e.map(JFunction.func(this::apply)).getOrElse(JFunction.func(() -> EMPTY_VALUE));
-	}
-
-	private String backtick(String txt) {
-	  boolean needsBackticks = !(Character.isJavaIdentifierStart(txt.charAt(0)));
-	  if (needsBackticks)
-		return "`" + txt + "`";
-	  else
-		return txt;
-	}
   }
 
 }

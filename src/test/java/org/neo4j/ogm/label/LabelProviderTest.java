@@ -59,7 +59,7 @@ class LabelProviderTest {
 	void queryWithPropertyFilter() {
 	  String withLabel = support.addLabel("MATCH (n{name:'Someone'}) RETURN n");
 
-	  String expected = "MATCH (n:NewLabel{name: \"Someone\"}) RETURN n";
+	  String expected = "MATCH (n:NewLabel {name: \"Someone\"}) RETURN n";
 
 	  assertEquals(expected, withLabel);
 	}
@@ -74,7 +74,7 @@ class LabelProviderTest {
 	void queryWithProcedureCallNoArgument() {
 	  String withLabel = support.addLabel("MATCH (n{name:'Someone'}) CALL nsp.customProcedure()");
 
-	  String expected = "MATCH (n:NewLabel{name: \"Someone\"}) CALL nsp.customProcedure()";
+	  String expected = "MATCH (n:NewLabel {name: \"Someone\"}) CALL nsp.customProcedure()";
 
 	  assertEquals(expected, withLabel);
 	}
@@ -84,7 +84,7 @@ class LabelProviderTest {
 	void queryWithProcedureCallOneArgument() {
 	  String withLabel = support.addLabel("MATCH (n{name:'Someone'}) CALL nsp.customProcedure(n)");
 
-	  String expected = "MATCH (n:NewLabel{name: \"Someone\"}) CALL nsp.customProcedure(n)";
+	  String expected = "MATCH (n:NewLabel {name: \"Someone\"}) CALL nsp.customProcedure(n)";
 
 	  assertEquals(expected, withLabel);
 	}
@@ -93,9 +93,9 @@ class LabelProviderTest {
 	@DisplayName("with multiple arguments")
 	void queryWithProcedureCallTwoArgumentsAndYield() {
 	  String withLabel = support.addLabel(
-		  "MATCH (c:IdEntity:ConfigEntity {objectState:'COMMITTED'}) WHERE (c)-[:PREDECESSOR]->({objectState:'DEPLOYING'}) CALL cisco.entity.populate(c, 1) YIELD nodes, rels RETURN c, nodes, rels");
+		  "MATCH (c:IdEntity:ConfigEntity {objectState:'COMMITTED'}) WHERE (c)-[:PREDECESSOR]->({objectState:'DEPLOYING'}) CALL nsp.customProcedure(c, 1) YIELD nodes, rels RETURN c, nodes, rels");
 
-	  String expected = "MATCH (c:IdEntity:ConfigEntity:NewLabel{objectState: \"COMMITTED\"}) WHERE (c:NewLabel)-[:PREDECESSOR]->(:NewLabel{objectState: \"DEPLOYING\"}) CALL cisco.entity.populate(c, 1) YIELD nodes, rels RETURN c, nodes, rels";
+	  String expected = "MATCH (c:IdEntity:ConfigEntity:NewLabel {objectState: \"COMMITTED\"}) WHERE (c:NewLabel)-[:PREDECESSOR]->(:NewLabel {objectState: \"DEPLOYING\"}) CALL nsp.customProcedure(c, 1) YIELD nodes, rels RETURN c, nodes, rels";
 
 	  assertEquals(expected, withLabel);
 	}
@@ -109,7 +109,7 @@ class LabelProviderTest {
 	  String withLabel = support.addLabel(
 		  "MATCH (n:IdEntity:ConfigEntity {objectState:'DEPLOYING'}) WHERE NOT((n)<-[:PREDECESSOR]-({objectState:'COMMITTED'})) SET n.objectState='COMMITTED' RETURN COUNT(n)");
 
-	  String expected = "MATCH (n:IdEntity:ConfigEntity:NewLabel{objectState: \"DEPLOYING\"}) WHERE not (n:NewLabel)<-[:PREDECESSOR]-(:NewLabel{objectState: \"COMMITTED\"}) SET n.objectState=\"COMMITTED\" RETURN COUNT(n)";
+	  String expected = "MATCH (n:IdEntity:ConfigEntity:NewLabel {objectState: \"DEPLOYING\"}) WHERE not (n:NewLabel)<-[:PREDECESSOR]-(:NewLabel {objectState: \"COMMITTED\"}) SET n.objectState = \"COMMITTED\" RETURN COUNT(n)";
 
 	  assertEquals(expected, withLabel);
 	}
@@ -119,7 +119,7 @@ class LabelProviderTest {
 	  String withLabel = support.addLabel(
 		  "MATCH (n:IdEntity:ConfigEntity {objectState:'DEPLOYING'}) WHERE NOT((n)<-[:PREDECESSOR]-({objectState:'COMMITTED'})) SET n.objectState='COMMITTED', n.objectState2='COMMITTED' RETURN COUNT(n)");
 
-	  String expected = "MATCH (n:IdEntity:ConfigEntity:NewLabel{objectState: \"DEPLOYING\"}) WHERE not (n:NewLabel)<-[:PREDECESSOR]-(:NewLabel{objectState: \"COMMITTED\"}) SET n.objectState=\"COMMITTED\", n.objectState2=\"COMMITTED\" RETURN COUNT(n)";
+	  String expected = "MATCH (n:IdEntity:ConfigEntity:NewLabel {objectState: \"DEPLOYING\"}) WHERE not (n:NewLabel)<-[:PREDECESSOR]-(:NewLabel {objectState: \"COMMITTED\"}) SET n.objectState = \"COMMITTED\", n.objectState2 = \"COMMITTED\" RETURN COUNT(n)";
 
 	  assertEquals(expected, withLabel);
 	}
