@@ -135,6 +135,15 @@ class LabelProviderTest {
 	}
 
 	@Test
+	void performingSimpleMerge() {
+	  String withLabel = support.addLabel("MERGE (a:Foobar)");
+
+	  String expected = "MERGE (a:Foobar:NewLabel)";
+
+	  assertEquals(expected, withLabel);
+	}
+
+	@Test
 	void performingMerge() {
 	  String withLabel = support.addLabel(
 		  "UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`UNDECRYPTABLE_ACTIONS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type");
