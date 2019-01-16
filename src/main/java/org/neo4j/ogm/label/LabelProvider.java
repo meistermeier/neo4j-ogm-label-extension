@@ -24,13 +24,21 @@ import scala.compat.java8.JFunction;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Supplier;
+
+import javax.xml.soap.Node;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opencypher.v9_0.ast.Statement;
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier;
 import org.opencypher.v9_0.ast.prettifier.Prettifier;
+import org.opencypher.v9_0.expressions.Expression;
 import org.opencypher.v9_0.expressions.LabelName;
+import org.opencypher.v9_0.expressions.LogicalVariable;
 import org.opencypher.v9_0.expressions.NodePattern;
 import org.opencypher.v9_0.parser.CypherParser;
 import org.opencypher.v9_0.util.bottomUp;
@@ -115,6 +123,8 @@ class LabelProvider {
 
 	private final String label;
 
+	private final Set<String> seenNodes = ConcurrentHashMap.newKeySet();
+
 	private AddLabelRewriter(String label) {
 	  this.label = label;
 	}
@@ -122,16 +132,22 @@ class LabelProvider {
 	@Override
 	public Object apply(Object patternElement) {
 
-	  if (patternElement instanceof NodePattern) {
-		NodePattern nodePattern = (NodePattern) patternElement;
-		Seq<LabelName> newLabels = addLabel(nodePattern);
-
-		return nodePattern
-			.copy(nodePattern.variable(), newLabels, nodePattern.properties(), nodePattern.baseNode(),
-				nodePattern.position());
-	  } else {
-		return patternElement;
+	  if (!NodePattern.class.isInstance(patternElement)) {
+		  return patternElement;
 	  }
+
+	  NodePattern nodePattern = (NodePattern) patternElement;
+	  Option<LogicalVariable> variable = nodePattern.variable();
+
+	  if(!variable.isEmpty() && seenNodes.contains(variable.get().name())) {
+		  return nodePattern;
+	  }
+
+	  variable.foreach(JFunction.func(v -> seenNodes.add(v.name())));
+	  Seq<LabelName> newLabels = addLabel(nodePattern);
+
+	  return nodePattern
+		  .copy(nodePattern.variable(), newLabels, nodePattern.properties(), nodePattern.baseNode(), nodePattern.position());
 	}
 
 	private Seq<LabelName> addLabel(NodePattern nodePattern) {

@@ -95,7 +95,7 @@ class LabelProviderTest {
 	  String withLabel = support.addLabel(
 		  "MATCH (c:IdEntity:ConfigEntity {objectState:'COMMITTED'}) WHERE (c)-[:PREDECESSOR]->({objectState:'DEPLOYING'}) CALL nsp.customProcedure(c, 1) YIELD nodes, rels RETURN c, nodes, rels");
 
-	  String expected = "MATCH (c:IdEntity:ConfigEntity:NewLabel {objectState: \"COMMITTED\"}) WHERE (c:NewLabel)-[:PREDECESSOR]->(:NewLabel {objectState: \"DEPLOYING\"}) CALL nsp.customProcedure(c, 1) YIELD nodes, rels RETURN c, nodes, rels";
+	  String expected = "MATCH (c:IdEntity:ConfigEntity:NewLabel {objectState: \"COMMITTED\"}) WHERE (c)-[:PREDECESSOR]->(:NewLabel {objectState: \"DEPLOYING\"}) CALL nsp.customProcedure(c, 1) YIELD nodes, rels RETURN c, nodes, rels";
 
 	  assertEquals(expected, withLabel);
 	}
@@ -109,7 +109,7 @@ class LabelProviderTest {
 	  String withLabel = support.addLabel(
 		  "MATCH (n:IdEntity:ConfigEntity {objectState:'DEPLOYING'}) WHERE NOT((n)<-[:PREDECESSOR]-({objectState:'COMMITTED'})) SET n.objectState='COMMITTED' RETURN COUNT(n)");
 
-	  String expected = "MATCH (n:IdEntity:ConfigEntity:NewLabel {objectState: \"DEPLOYING\"}) WHERE not (n:NewLabel)<-[:PREDECESSOR]-(:NewLabel {objectState: \"COMMITTED\"}) SET n.objectState = \"COMMITTED\" RETURN COUNT(n)";
+	  String expected = "MATCH (n:IdEntity:ConfigEntity:NewLabel {objectState: \"DEPLOYING\"}) WHERE not (n)<-[:PREDECESSOR]-(:NewLabel {objectState: \"COMMITTED\"}) SET n.objectState = \"COMMITTED\" RETURN COUNT(n)";
 
 	  assertEquals(expected, withLabel);
 	}
@@ -119,7 +119,7 @@ class LabelProviderTest {
 	  String withLabel = support.addLabel(
 		  "MATCH (n:IdEntity:ConfigEntity {objectState:'DEPLOYING'}) WHERE NOT((n)<-[:PREDECESSOR]-({objectState:'COMMITTED'})) SET n.objectState='COMMITTED', n.objectState2='COMMITTED' RETURN COUNT(n)");
 
-	  String expected = "MATCH (n:IdEntity:ConfigEntity:NewLabel {objectState: \"DEPLOYING\"}) WHERE not (n:NewLabel)<-[:PREDECESSOR]-(:NewLabel {objectState: \"COMMITTED\"}) SET n.objectState = \"COMMITTED\", n.objectState2 = \"COMMITTED\" RETURN COUNT(n)";
+	  String expected = "MATCH (n:IdEntity:ConfigEntity:NewLabel {objectState: \"DEPLOYING\"}) WHERE not (n)<-[:PREDECESSOR]-(:NewLabel {objectState: \"COMMITTED\"}) SET n.objectState = \"COMMITTED\", n.objectState2 = \"COMMITTED\" RETURN COUNT(n)";
 
 	  assertEquals(expected, withLabel);
 	}
