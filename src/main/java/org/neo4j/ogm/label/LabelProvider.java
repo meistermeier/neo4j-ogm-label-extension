@@ -20,21 +20,15 @@ import static scala.collection.JavaConverters.*;
 import scala.Function1;
 import scala.Function2;
 import scala.Option;
-import scala.collection.JavaConverters;
 import scala.collection.Seq;
 import scala.compat.java8.JFunction;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Supplier;
-
-import javax.xml.soap.Node;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opencypher.v9_0.ast.SetClause;
@@ -43,12 +37,10 @@ import org.opencypher.v9_0.ast.SetLabelItem;
 import org.opencypher.v9_0.ast.Statement;
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier;
 import org.opencypher.v9_0.ast.prettifier.Prettifier;
-import org.opencypher.v9_0.expressions.Expression;
 import org.opencypher.v9_0.expressions.LabelName;
 import org.opencypher.v9_0.expressions.LogicalVariable;
 import org.opencypher.v9_0.expressions.NodePattern;
 import org.opencypher.v9_0.parser.CypherParser;
-import org.opencypher.v9_0.util.InputPosition;
 import org.opencypher.v9_0.util.bottomUp;
 
 /**
